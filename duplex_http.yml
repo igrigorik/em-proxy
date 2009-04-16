@@ -1,0 +1,16 @@
+:post_processor: LogProcessTime
+:pre_processor: LogRequest
+
+:local:
+  :host: 0.0.0.0
+  :port: 9000
+
+:responder:
+  :host: 127.0.0.1
+  :port: 9001
+
+:benchmark:
+  :host: 127.0.0.1
+  :port: 9002
+
+
