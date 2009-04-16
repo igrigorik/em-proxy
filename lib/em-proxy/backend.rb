@@ -10,7 +10,7 @@ module EventMachine
       end
 
       def connection_completed
-        @plexer.open.push(@respond)
+        @plexer.open.push(@plexer.pending.delete(@respond))
         @connected.succeed
       end
 

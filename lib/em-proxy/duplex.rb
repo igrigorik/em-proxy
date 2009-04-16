@@ -1,10 +1,10 @@
 module EventMachine
   module Proxy
     class Duplex < EventMachine::Connection
-      attr_accessor :options, :open, :data
+      attr_accessor :options, :open, :pending, :data
 
       def initialize
-        @open = []
+        @open, @pending = [], [true, false]
         @data = ""
       end
 
@@ -32,7 +32,7 @@ module EventMachine
       # with the client if all backends have finished processing requests.
       def unbind_backend(respond)
         @open.delete(respond)
-        close_backend_connections if @open.empty?
+        close_backend_connections if @open.empty? and @pending.empty?
       end
 
       protected
@@ -42,6 +42,7 @@ module EventMachine
         @benchmark.close_connection_after_writing if @benchmark
 
         EventMachine::Proxy::PostProcessor::DuplexHttp.new(@responder, @benchmark, @data).process
+        unbind
       end
 
       def proxy_data(data)
