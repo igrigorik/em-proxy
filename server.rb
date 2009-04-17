@@ -17,8 +17,7 @@ end
 
 options.merge!(YAML.load(File.read(options[:config])))
 
-puts options.inspect
-
 EventMachine.run do
   EventMachine::ProxyServer.new(options).start
 end
+

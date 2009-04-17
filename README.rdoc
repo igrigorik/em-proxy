@@ -1,0 +1,22 @@
+= EM-Proxy
+
+EventMachine HTTP Duplex Proxy: splits any incoming request into two parallel connections to two hosts. 
+- One of the connections is marked as production: response is forwarded to client
+- One of the connections is marked as benchmark: response is buffered by the proxy
+- Once both connections are finished, a 'post processor' is executed
+- Response time + response body is compared and analyzed
+
+
+== Why?
+
+Because sometimes you want to benchmark your new code against the production environment, and this pattern
+makes it easy to do so! Put up a proxy, customize it, and analyze whatever you want. The client won't notice
+a thing.
+
+== Example
+
+  > ruby server.rb -c demo/duplex_http.yml
+  > ruby demo/appserver.rb 9001
+  > ruby demo/appserver.rb 9002
+
+  > curl localhost:9000 
