@@ -9,7 +9,6 @@ module EventMachine
 
       ##### EventMachine
       def initialize
-        p [:connection, :initialize]
         @servers = {}
       end
 
