@@ -5,6 +5,7 @@ module EventMachine
       ##### Proxy Methods
       def on_data(&blk); @on_data = blk; end
       def on_response(&blk); @on_response = blk; end
+      def on_finish(&blk); @on_finish = blk; end
 
       ##### EventMachine
       def initialize
@@ -17,7 +18,7 @@ module EventMachine
         data = @on_data.call(data)
 
         @servers.values.compact.each do |s|
-          s.send_data data
+          s.send_data data unless data.nil?
         end
       end
 
@@ -40,7 +41,7 @@ module EventMachine
         p [:relay_from_backend, name, data]
 
         data = @on_response.call(name, data)
-        send_data data # if forward
+        send_data data unless data.nil?
       end
 
       def unbind
@@ -50,11 +51,12 @@ module EventMachine
         end
 
         close_connection_after_writing
+        @on_finish.call if @on_finish
       end
 
       def unbind_backend(name)
         @servers[name] = nil
-        unbind if @servers.values.compact.size.zero?
+        close_connection_after_writing if @servers.values.compact.size.zero?
       end
 
     end
