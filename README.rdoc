@@ -1,7 +1,7 @@
 = EM-Proxy
 
 EventMachine Proxy DSL: 
-- http://www.igvita.com/2009/04/20/ruby-proxies-for-scale-and-monitoring/
+- Slides from RailsConf 2009: http://bit.ly/D7oWB
 
 == Simple port forwarding proxy
 
