@@ -14,9 +14,19 @@ module EventMachine
 
       def receive_data(data)
         p [:connection, data]
-        data = @on_data.call(data)
+        processed = @on_data.call(data)
 
-        @servers.values.compact.each do |s|
+        if processed.is_a? Array
+          data, servers = *processed
+
+          # guard for "unbound" servers
+          servers = servers.collect {|s| @servers[s]}.compact
+        else
+          data = processed
+          servers ||= @servers.values.compact
+        end
+
+        servers.each do |s|
           s.send_data data unless data.nil?
         end
       end
@@ -46,15 +56,17 @@ module EventMachine
       def unbind
         # terminate any unfinished connections
         @servers.values.compact.each do |s|
-          s.close_connection
+          s.close_connection_after_writing
         end
 
         close_connection_after_writing
-        @on_finish.call if @on_finish
+        @on_finish.call(:done) if @servers.values.compact.size.zero?
       end
 
       def unbind_backend(name)
+        p [:unbind_backend, name]
         @servers[name] = nil
+        @on_finish.call(name)
         close_connection_after_writing if @servers.values.compact.size.zero?
       end
 

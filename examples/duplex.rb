@@ -18,8 +18,8 @@ Proxy.start(:host => "0.0.0.0", :port => 80) do |conn|
     resp if server == :prod
   end
 
-  conn.on_finish do
-    p [:on_finish, Time.now - @start]
+  conn.on_finish do |name|
+    p [:on_finish, name, Time.now - @start]
     p @data
   end
 end
