@@ -60,13 +60,13 @@ module EventMachine
         end
 
         close_connection_after_writing
-        @on_finish.call(:done) if @servers.values.compact.size.zero?
+        @on_finish.call(:done) if @servers.values.compact.size.zero? if @on_finish
       end
 
       def unbind_backend(name)
         p [:unbind_backend, name]
         @servers[name] = nil
-        @on_finish.call(name)
+        @on_finish.call(name) if @on_finish
         close_connection_after_writing if @servers.values.compact.size.zero?
       end
 
