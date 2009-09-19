@@ -1,19 +1,21 @@
 module EventMachine
   module ProxyServer
     class Connection < EventMachine::Connection
-
+      attr_accessor :debug
+      
       ##### Proxy Methods
       def on_data(&blk); @on_data = blk; end
       def on_response(&blk); @on_response = blk; end
       def on_finish(&blk); @on_finish = blk; end
 
       ##### EventMachine
-      def initialize
+      def initialize(options)
+        @debug = options[:debug] || false
         @servers = {}
       end
 
       def receive_data(data)
-        p [:connection, data]
+        debug [:connection, data]
         processed = @on_data.call(data)
 
         if processed.is_a? Array
@@ -35,7 +37,7 @@ module EventMachine
       # initialize connections to backend servers
       #
       def server(name, opts)
-        srv = EventMachine::connect(opts[:host], opts[:port], EventMachine::ProxyServer::Backend) do |c|
+        srv = EventMachine::connect(opts[:host], opts[:port], EventMachine::ProxyServer::Backend, @debug) do |c|
           c.name = name
           c.plexer = self
         end
@@ -47,7 +49,7 @@ module EventMachine
       # relay data from backend server to client
       #
       def relay_from_backend(name, data)
-        p [:relay_from_backend, name, data]
+        debug [:relay_from_backend, name, data]
 
         data = @on_response.call(name, data)
         send_data data unless data.nil?
@@ -64,12 +66,17 @@ module EventMachine
       end
 
       def unbind_backend(name)
-        p [:unbind_backend, name]
+        debug [:unbind_backend, name]
         @servers[name] = nil
         @on_finish.call(name) if @on_finish
         close_connection_after_writing if @servers.values.compact.size.zero?
       end
 
+      private
+
+      def debug(*data)
+        p data if @debug
+      end
     end
   end
 end

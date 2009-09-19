@@ -1,13 +1,13 @@
 spec = Gem::Specification.new do |s|
   s.name = 'em-proxy'
-  s.version = '0.1.0'
-  s.date = '2009-05-07'
+  s.version = '0.1.1'
+  s.date = '2009-09-19'
   s.summary = 'EventMachine Proxy DSL'
   s.description = s.summary
-  s.email = 'ilya@igvita.com'
-  s.homepage = "http://github.com/igrigorik/em-proxy"
+  s.email = 'mark@imbriaco.com'
+  s.homepage = "http://github.com/imbriaco/em-proxy"
   s.has_rdoc = true
-  s.authors = ["Ilya Grigorik"]
+  s.authors = ["Ilya Grigorik", "Mark Imbriaco"]
   s.add_dependency('eventmachine', '>= 0.12.2')
   s.rubyforge_project = "em-proxy"
 
