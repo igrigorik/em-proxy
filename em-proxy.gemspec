@@ -13,15 +13,19 @@ spec = Gem::Specification.new do |s|
 
   # ruby -rpp -e' pp `git ls-files`.split("\n") '
   s.files = ["README.rdoc",
+    "em-proxy.gemspec",
     "examples/appserver.rb",
     "examples/beanstalkd_interceptor.rb",
     "examples/duplex.rb",
     "examples/line_interceptor.rb",
     "examples/port_forward.rb",
+    "examples/selective_forward.rb",
     "examples/smtp_spam_filter.rb",
     "examples/smtp_whitelist.rb",
     "lib/em-proxy.rb",
     "lib/em-proxy/backend.rb",
     "lib/em-proxy/connection.rb",
-    "lib/em-proxy/proxy.rb"]
+    "lib/em-proxy/proxy.rb",
+    "spec/helper.rb",
+    "spec/proxy_spec.rb"]
 end
