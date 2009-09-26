@@ -21,11 +21,19 @@ EventMachine Proxy DSL for writing high-performance transparent / intercepting p
         p [:on_response, backend, resp]
         resp
       end
+
+      # termination logic
+      conn.on_finish do |backend|
+        p [:on_finish, name]
+
+        # terminate connection (in duplex mode, you can terminate when prod is done)
+        unbind if backend == :srv
+      end
     end
 
 For more examples see the /examples directory.
- - SMTP Spam Filtering
- - Duplicating traffic
- - Selective forwarding
- - Beanstalkd interceptor
- - etc.
+- SMTP Spam Filtering
+- Duplicating traffic
+- Selective forwarding
+- Beanstalkd interceptor
+- etc.
