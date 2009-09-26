@@ -36,7 +36,10 @@ module EventMachine
       private
 
       def debug(*data)
-        p data if @debug
+        return unless @debug
+        require 'pp'
+        pp data
+        puts
       end
     end
   end

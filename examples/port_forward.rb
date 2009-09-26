@@ -1,6 +1,6 @@
 require 'lib/em-proxy'
 
-Proxy.start(:host => "0.0.0.0", :port => 80) do |conn|
+Proxy.start(:host => "0.0.0.0", :port => 80, :debug => true) do |conn|
   conn.server :srv, :host => "127.0.0.1", :port => 81
 
   # modify / process request stream

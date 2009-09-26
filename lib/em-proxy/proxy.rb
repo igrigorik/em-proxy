@@ -1,7 +1,9 @@
 class Proxy
+
   def self.start(options, &blk)
     EM.epoll
     EM.run do
+
       trap("TERM") { stop }
       trap("INT")  { stop }
 
