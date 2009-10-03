@@ -56,20 +56,25 @@ module EventMachine
       end
 
       def unbind
+        debug [:unbind, :connection]
+      
         # terminate any unfinished connections
         @servers.values.compact.each do |s|
-          s.close_connection_after_writing
+          s.close_connection
         end
-
-        close_connection_after_writing
-        @on_finish.call(:done) if @servers.values.compact.size.zero? if @on_finish
       end
 
       def unbind_backend(name)
         debug [:unbind_backend, name]
         @servers[name] = nil
-        @on_finish.call(name) if @on_finish
-        close_connection_after_writing if @servers.values.compact.size.zero?
+
+        # if all connections are terminated downstream, then notify client
+        close_connection if @servers.values.compact.size.zero?
+        
+        if @on_finish
+          @on_finish.call(name)
+          @on_finish.call(:done) if @servers.values.compact.size.zero?
+        end
       end
 
       private

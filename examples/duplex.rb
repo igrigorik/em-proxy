@@ -1,15 +1,15 @@
 require 'lib/em-proxy'
 
-Proxy.start(:host => "0.0.0.0", :port => 80) do |conn|
+Proxy.start(:host => "0.0.0.0", :port => 80, :debug => true) do |conn|
   @start = Time.now
   @data = Hash.new("")
 
-  conn.server :prod, :host => "127.0.0.1", :port => 81    # production, will render resposne
-  conn.server :test, :host => "127.0.0.1", :port => 82     # testing, internal only
+  conn.server :test, :host => "127.0.0.1", :port => 81    # production, will render resposne
+  conn.server :prod, :host => "127.0.0.1", :port => 82     # testing, internal only
 
   conn.on_data do |data|
     # rewrite User-Agent
-    data.gsub(/User-Agent: .*?\r\n/, 'User-Agent: em-proxy/0.1\r\n')
+    data.gsub(/User-Agent: .*?\r\n/, "User-Agent: em-proxy/0.1\r\n")
   end
  
   conn.on_response do |server, resp|
