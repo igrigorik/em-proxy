@@ -5,6 +5,17 @@ EventMachine Proxy DSL for writing high-performance transparent / intercepting p
 - Slides from RailsConf 2009: http://bit.ly/D7oWB
 - GoGaRuCo notes & Slides: http://www.igvita.com/2009/04/20/ruby-proxies-for-scale-and-monitoring/
 
+== Getting started
+
+  # install & configure gemcutter repos
+  gem update --system
+  gem install gemcutter
+  gem tumble
+
+  gem install em-proxy
+
+  irb:0> require 'em-proxy'
+
 == Simple port forwarding proxy
 
     Proxy.start(:host => "0.0.0.0", :port => 80, :debug => true) do |conn|
