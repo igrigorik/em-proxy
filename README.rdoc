@@ -34,7 +34,7 @@ EventMachine Proxy DSL for writing high-performance transparent / intercepting p
       end
 
       # termination logic
-      conn.on_finish do |backend|
+      conn.on_finish do |backend, name|
         p [:on_finish, name]
 
         # terminate connection (in duplex mode, you can terminate when prod is done)
