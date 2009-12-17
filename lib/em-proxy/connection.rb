@@ -69,7 +69,7 @@ module EventMachine
         @servers[name] = nil
 
         # if all connections are terminated downstream, then notify client
-        close_connection if @servers.values.compact.size.zero?
+        close_connection_after_writing if @servers.values.compact.size.zero?
         
         if @on_finish
           @on_finish.call(name)
