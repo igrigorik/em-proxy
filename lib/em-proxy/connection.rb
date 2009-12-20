@@ -73,7 +73,9 @@ module EventMachine
         
         if @on_finish
           @on_finish.call(name)
-          @on_finish.call(:done) if @servers.values.compact.size.zero?
+
+          # not sure if this is required
+          # @on_finish.call(:done) if @servers.values.compact.size.zero?
         end
       end
 
