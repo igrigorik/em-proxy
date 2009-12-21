@@ -7,6 +7,7 @@ module EventMachine
       def on_data(&blk); @on_data = blk; end
       def on_response(&blk); @on_response = blk; end
       def on_finish(&blk); @on_finish = blk; end
+      def on_connect(&blk); blk.call; end
 
       ##### EventMachine
       def initialize(options)
@@ -45,6 +46,13 @@ module EventMachine
         self.proxy_incoming_to(srv, 10240) if opts[:relay_client]
 
         @servers[name] = srv
+      end
+
+      #
+      # [ip, port] of the connected client
+      #
+      def peer
+        @peer ||= Socket.unpack_sockaddr_in(get_peername).reverse
       end
 
       #

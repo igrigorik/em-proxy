@@ -22,6 +22,24 @@ describe Proxy do
     end
   end
 
+  it "should call the on_connect callback" do
+    connected = false
+    EM.run do
+      EventMachine.add_timer(2) do
+        EventMachine::HttpRequest.new('http://127.0.0.1:8080/test').get({:timeout => 1})
+      end
+
+      Proxy.start(:host => "0.0.0.0", :port => 8080) do |conn|
+        conn.on_connect do 
+          connected = true
+          EventMachine.stop
+        end
+      end
+    end
+    connected.should == true
+  end
+
+
   it "should transparently redirect TCP traffic to google" do
     EM.run do
       EventMachine.add_timer(2) do
