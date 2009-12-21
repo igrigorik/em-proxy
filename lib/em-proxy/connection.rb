@@ -40,7 +40,9 @@ module EventMachine
         srv = EventMachine::connect(opts[:host], opts[:port], EventMachine::ProxyServer::Backend, @debug) do |c|
           c.name = name
           c.plexer = self
+          c.proxy_incoming_to(self, 10240) if opts[:relay_server]
         end
+        self.proxy_incoming_to(srv, 10240) if opts[:relay_client]
 
         @servers[name] = srv
       end

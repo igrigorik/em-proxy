@@ -108,4 +108,40 @@ describe Proxy do
       end
     end
   end
+
+  it "should not invoke on_data when :relay_client is passed as server option" do
+    lambda {
+      EM.run do
+        EventMachine.add_timer(2) do
+          http =EventMachine::HttpRequest.new('http://127.0.0.1:8080/').get({:timeout => 1})
+          http.callback { EventMachine.stop }
+        end
+  
+        Proxy.start(:host => "0.0.0.0", :port => 8080) do |conn|
+          conn.server :goog, :host => "google.com", :port => 80, :relay_client => true
+          conn.on_data { |data| raise "Should not be here"; data }
+          conn.on_response { |backend, resp| resp }
+          
+        end
+      end
+    }.should_not raise_error
+  end
+
+  it "should not invoke on_response when :relay_server is passed as server option" do
+    lambda {
+      EM.run do
+        EventMachine.add_timer(2) do
+          http =EventMachine::HttpRequest.new('http://127.0.0.1:8080/').get({:timeout => 1})
+          http.callback { EventMachine.stop }
+        end
+  
+        Proxy.start(:host => "0.0.0.0", :port => 8080) do |conn|
+          conn.server :goog, :host => "google.com", :port => 80, :relay_server => true
+          conn.on_data { |data| data }
+          conn.on_response { |backend, resp| raise "Should not be here"; }
+          
+        end
+      end
+    }.should_not raise_error
+  end
 end
