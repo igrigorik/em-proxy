@@ -9,7 +9,7 @@ describe Proxy do
 
   it "should recieve data on port 8080" do
     EM.run do
-      EventMachine.add_timer(2) do
+      EventMachine.add_timer(0.1) do
         EventMachine::HttpRequest.new('http://127.0.0.1:8080/test').get({:timeout => 1})
       end
 
@@ -25,7 +25,7 @@ describe Proxy do
   it "should call the on_connect callback" do
     connected = false
     EM.run do
-      EventMachine.add_timer(2) do
+      EventMachine.add_timer(0.1) do
         EventMachine::HttpRequest.new('http://127.0.0.1:8080/test').get({:timeout => 1})
       end
 
@@ -42,7 +42,7 @@ describe Proxy do
 
   it "should transparently redirect TCP traffic to google" do
     EM.run do
-      EventMachine.add_timer(2) do
+      EventMachine.add_timer(0.1) do
         EventMachine::HttpRequest.new('http://127.0.0.1:8080/').get({:timeout => 1})
       end
 
@@ -61,7 +61,7 @@ describe Proxy do
 
   it "should duplex TCP traffic to two backends google & yahoo" do
     EM.run do
-      EventMachine.add_timer(2) do
+      EventMachine.add_timer(0.1) do
         EventMachine::HttpRequest.new('http://127.0.0.1:8080/').get({:timeout => 1})
       end
 
@@ -90,7 +90,7 @@ describe Proxy do
 
   it "should intercept & alter response from Google" do
     EM.run do
-      EventMachine.add_timer(2) do
+      EventMachine.add_timer(0.1) do
         http = EventMachine::HttpRequest.new('http://127.0.0.1:8080/').get({:timeout => 1})
         http.errback { failed }
         http.callback {
@@ -111,7 +111,7 @@ describe Proxy do
 
   it "should invoke on_finish callback when connection is terminated" do
     EM.run do
-      EventMachine.add_timer(2) do
+      EventMachine.add_timer(0.1) do
         EventMachine::HttpRequest.new('http://127.0.0.1:8080/').get({:timeout => 1})
       end
 
@@ -130,7 +130,7 @@ describe Proxy do
   it "should not invoke on_data when :relay_client is passed as server option" do
     lambda {
       EM.run do
-        EventMachine.add_timer(2) do
+        EventMachine.add_timer(0.1) do
           http =EventMachine::HttpRequest.new('http://127.0.0.1:8080/').get({:timeout => 1})
           http.callback { EventMachine.stop }
         end
@@ -148,7 +148,7 @@ describe Proxy do
   it "should not invoke on_response when :relay_server is passed as server option" do
     lambda {
       EM.run do
-        EventMachine.add_timer(2) do
+        EventMachine.add_timer(0.1) do
           http =EventMachine::HttpRequest.new('http://127.0.0.1:8080/').get({:timeout => 1})
           http.callback { EventMachine.stop }
         end
