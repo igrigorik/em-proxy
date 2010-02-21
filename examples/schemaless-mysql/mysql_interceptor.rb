@@ -1,8 +1,9 @@
 require "lib/em-proxy"
 require "em-mysql"
+require "fiber"
 
 Proxy.start(:host => "0.0.0.0", :port => 3307) do |conn|
-  conn.server :mysql, :host => "127.0.0.1", :port => 3306
+  conn.server :mysql, :host => "127.0.0.1", :port => 3306, :relay_server => true
 
   QUERY_CMD = 3
 
@@ -25,12 +26,14 @@ Proxy.start(:host => "0.0.0.0", :port => 3307) do |conn|
       when "create" then
         # allow schemaless table creation, ex: 'create table posts'
         # by creating a table with a single id for key storage, aka
-        # rewrite to: 'create table posts (id varchar(255))'
+        # rewrite to: 'create table posts (id varchar(255))'. all
+        # future attribute tables will be created on demand at
+        # insert time of a new record
         overload = "(id varchar(255), UNIQUE(id));"
         query += [overload]
         overhead += overload.size + 1
 
-        p [:create, query, data]
+        p [:create_new_schema_free_table, query, data]
 
       when "insert" then
         # overload the INSERT syntax to allow for nested parameters
@@ -45,6 +48,13 @@ Proxy.start(:host => "0.0.0.0", :port => 3307) do |conn|
         # => 'posts_author' will store key, value
         # => 'posts_nickname' will store key, value
         #
+        #  or, in SQL..
+        #
+        # =>  insert into posts values("ilya");
+        # =>  create table posts_author (id varchar(40), value varchar(255), UNIQUE(id));
+        # =>  insert into posts_author values("ilya", "Ilya Grigorik");
+        # =>  ... repeat for every attribute
+        #
         # If the table post_value has not been seen before, it will
         # be created on the fly. Hence allowing us to add and remove
         # keys and values at will. :-)
@@ -52,15 +62,28 @@ Proxy.start(:host => "0.0.0.0", :port => 3307) do |conn|
         # P.S. There is probably cleaner syntax for this, but hey...
         if query[3] =~ /^value\(/
        
-          # INSERT INTO posts VALUE("post_id_1", (('author', 'Ilya Grigorik'),('nickname', 'igrigorik')))
+          table = query[2]
+          key   = query[3].match(/\"(.*?)\"/)[1]
+          values = query.last(query.size - 4)
 
-          original_query = query
+          values.join(" ").squeeze("()").scan(/\(.*?\)/).each do |value|
+            value = value.match(/'(.*?)'.*?'(.*?)'/)
+            attr_sql = "insert into #{table}_#{value[1]} values('#{key}', '#{value[2]}')"
+
+            q = @mysql.query(attr_sql)
+            q.errback  { |res|
+              # if the attribute table for this model does not yet exist then create it!
+              if res.is_a?(Mysql::Error) and res.message =~ /Table.*doesn\'t exist/
+
+                table_sql = "create table #{table}_#{value[1]} (id varchar(255), value varchar(255), UNIQUE(id))"
+                tc = @mysql.query(table_sql)
+                tc.callback { @mysql.query(attr_sql) }
+
+                p [:created_new_attr_table, "#{table}_#{value[1]}"]
+              end
+            }
+          end
         
-          # insert into posts values("ilya");
-          # insert into posts_nickname values("ilya", "igrigorik");
-          # create table posts_nickname (id varchar(40), value varchar(255));
-
-
           # override the query to insert the key into posts table
           query = query[0,3] + [query[3].chop + ")"]
           overhead = query.join(" ").size + 1
@@ -88,8 +111,7 @@ Proxy.start(:host => "0.0.0.0", :port => 3307) do |conn|
     data
   end
 
-  conn.on_response do |backend, resp|
-    p [:response, resp]
-    resp
-  end
 end
+
+
+# create table #{table}_#{value[1]} (id varchar(255), value varchar(255), UNIQUE(id))
