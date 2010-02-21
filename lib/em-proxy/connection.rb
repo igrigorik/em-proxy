@@ -19,6 +19,11 @@ module EventMachine
         debug [:connection, data]
         processed = @on_data.call(data)
 
+        return if processed == :async or processed.nil?
+        relay_to_servers(processed)
+      end
+
+      def relay_to_servers(processed)
         if processed.is_a? Array
           data, servers = *processed
 
@@ -33,7 +38,7 @@ module EventMachine
           s.send_data data unless data.nil?
         end
       end
-
+      
       #
       # initialize connections to backend servers
       #
