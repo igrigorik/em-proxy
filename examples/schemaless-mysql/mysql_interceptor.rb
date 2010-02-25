@@ -18,12 +18,15 @@ Proxy.start(:host => "0.0.0.0", :port => 3307) do |conn|
 
       overhead, chunks, seq = data[0,4].unpack("CvC")
       type, sql = data[4, data.size].unpack("Ca*")
-    
+
       p [:request, [overhead, chunks, seq], [type, sql]]
 
       if type == QUERY_CMD
         query = sql.downcase.split
         p [:query, query]
+
+        # TODO: can probably switch to http://github.com/omghax/sql
+        #       for AST query parsing & mods.
 
         case query.first
         when "create" then
@@ -41,10 +44,9 @@ Proxy.start(:host => "0.0.0.0", :port => 3307) do |conn|
         when "insert" then
           # Overload the INSERT syntax to allow for nested parameters
           # inside the statement. ex:
-          #   INSERT INTO posts VALUE("post_id_1", (
-          #     ("author", "Ilya Grigorik"),
-          #     ("nickname", "igrigorik")
-          #   ))
+          #   INSERT INTO posts (id, author, nickname, ...) VALUES (
+          #     'ilya', 'Ilya Grigorik', 'igrigorik'
+          #   )
           #
           # The following query will be mapped into 3 distinct tables:
           # => 'posts' table will store the key
@@ -63,11 +65,16 @@ Proxy.start(:host => "0.0.0.0", :port => 3307) do |conn|
           # keys and values at will. :-)
           #
           # P.S. There is probably cleaner syntax for this, but hey...
-          if query[3] =~ /^value\(/
-       
+            
+          p [:insert, query]
+            
+          if query[3] =~ /^values\(/
+
             table = query[2]
             key   = query[3].match(/\"(.*?)\"/)[1]
             values = query.last(query.size - 4)
+              
+            p [:insert, values]
 
             values.join(" ").squeeze("()").scan(/\(.*?\)/).each do |value|
               value = value.match(/'(.*?)'.*?'(.*?)'/)
@@ -105,44 +112,46 @@ Proxy.start(:host => "0.0.0.0", :port => 3307) do |conn|
 
           select = sql.match(/select(.*?)from\s([^\s]+)/)
           where  = sql.match(/where\s([^=]+)\s?=\s?'?"?([^\s'"]+)'?"?/)
-          attrs, table = select[1].strip.split(','), select[2]
+          attrs, table = select[1].strip.split(','), select[2] if select
           key = where[2] if where
 
-          p [:select, select, attrs, where]
+          if select
+            p [:select, select, attrs, where]
 
-          tables = @mysql.query("show tables like '#{table}_%'")
-          tables.callback { |res|
-            fiber.resume(res.all_hashes.collect(&:values).flatten.collect{ |c|
-                c.split('_').last 
-              })
-          }
-          tables = Fiber.yield
-          
-          p [:select_tables, tables]
+            tables = @mysql.query("show tables like '#{table}_%'")
+            tables.callback { |res|
+              fiber.resume(res.all_hashes.collect(&:values).flatten.collect{ |c|
+                  c.split('_').last
+                })
+            }
+            tables = Fiber.yield
 
-          # build the select statements, hide the tables behind each attribute
-          join =  "select #{table}.id as id "
-          tables.each do |column|
-            join += " , #{table}_#{column}.value as #{column} "
+            p [:select_tables, tables]
+
+            # build the select statements, hide the tables behind each attribute
+            join =  "select #{table}.id as id "
+            tables.each do |column|
+              join += " , #{table}_#{column}.value as #{column} "
+            end
+
+            # add the joins to stich it all together
+            join += " FROM #{table} "
+            tables.each do |column|
+              join += " LEFT OUTER JOIN #{table}_#{column} ON #{table}_#{column}.id = #{table}.id "
+            end
+
+            join += " WHERE #{table}.id = '#{key}' " if key
+
+            query = [join]
+            overhead = join.size + 1
+
+            p [:join_query, join]
           end
-
-          # add the joins to stich it all together
-          join += " FROM #{table} "
-          tables.each do |column|
-            join += " LEFT OUTER JOIN #{table}_#{column} ON #{table}_#{column}.id = #{table}.id "
-          end
-
-          join += " WHERE #{table}.id = '#{key}' " if key
-
-          query = [join]
-          overhead = join.size + 1
-
-          p [:join_query, join]
         end
 
         # repack the query data and forward to server
         # - have to split message on packet boundaries
- 
+
         seq, data = 0, []
         query = StringIO.new([type, query.join(" ")].pack("Ca*"))
         while q = query.read(MAX_PACKET_LENGTH)
