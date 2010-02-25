@@ -101,10 +101,20 @@ Proxy.start(:host => "0.0.0.0", :port => 3307) do |conn|
           end
 
         when "select" then
-          #  select posts.id as id, posts_author.value as author FROM posts
+          # Overload the select call to perform a multi-join in the background
+          # and rewrite the attribute names to fool the client into thinking it
+          # all came from the same table.
+          #
+          # To figure out which tables we need to join on, do the simple / dumb
+          # approach and issue a 'show tables like key_%' to do 'runtime
+          # introspection'. Could easily cache this, but that's for later.
+          #
+          # Ex, a 'select * from posts' query with one value (author) would be
+          # rewritten into the following query:
+          #
+          #  SELECT posts.id as id, posts_author.value as author FROM posts
           #   LEFT OUTER JOIN posts_author ON posts_author.id = posts.id
           #   WHERE posts.id = "ilya";
-          # select posts.id as id, posts_author.value as author FROM posts LEFT OUTER JOIN posts_author ON posts_author.id = posts.id WHERE posts.id = "ilya";
 
           select = sql.match(/select(.*?)from\s([^\s]+)/)
           where  = sql.match(/where\s([^=]+)\s?=\s?'?"?([^\s'"]+)'?"?/)
