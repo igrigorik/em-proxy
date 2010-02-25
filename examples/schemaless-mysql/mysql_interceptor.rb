@@ -66,19 +66,17 @@ Proxy.start(:host => "0.0.0.0", :port => 3307) do |conn|
           #
           # P.S. There is probably cleaner syntax for this, but hey...
             
-          p [:insert, query]
             
-          if query[3] =~ /^values\(/
-
+          if insert = sql.match(/\((.*?)\).*?\((.*?)\)/)
+            data = {}
             table = query[2]
-            key   = query[3].match(/\"(.*?)\"/)[1]
-            values = query.last(query.size - 4)
-              
-            p [:insert, values]
+            keys = insert[1].split(',').map!{|s| s.strip}
+            values = insert[2].scan(/([^\'|\"]+)/).flatten.reject {|s| s.strip == ','}
+            keys.each_with_index {|k,i| data[k] = values[i]}
 
-            values.join(" ").squeeze("()").scan(/\(.*?\)/).each do |value|
-              value = value.match(/'(.*?)'.*?'(.*?)'/)
-              attr_sql = "insert into #{table}_#{value[1]} values('#{key}', '#{value[2]}')"
+            data.each do |key, value|
+              next if key == 'id'
+              attr_sql = "insert into #{table}_#{key} values('#{data['id']}', '#{value}')"
 
               q = @mysql.query(attr_sql)
               q.errback  { |res|
@@ -86,19 +84,17 @@ Proxy.start(:host => "0.0.0.0", :port => 3307) do |conn|
                 # - yes, there is a race condition here, add fiber logic later
                 if res.is_a?(Mysql::Error) and res.message =~ /Table.*doesn\'t exist/
 
-                  table_sql = "create table #{table}_#{value[1]} (id varchar(255), value varchar(255), UNIQUE(id))"
+                  table_sql = "create table #{table}_#{key} (id varchar(255), value varchar(255), UNIQUE(id))"
                   tc = @mysql.query(table_sql)
                   tc.callback { @mysql.query(attr_sql) }
-
-                  p [:created_new_attr_table, "#{table}_#{value[1]}"]
                 end
               }
 
-              p [:inserted_attr, table, key, value[2]]
+              p [:inserted_attr, table, key, value]
             end
 
             # override the query to insert the key into posts table
-            query = query[0,3] + [query[3].chop + ")"]
+            query = query[0,3] + ["VALUES('#{data['id']}')"]
             overhead = query.join(" ").size + 1
 
             p [:insert, query]
