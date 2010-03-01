@@ -179,9 +179,3 @@ Proxy.start(:host => "0.0.0.0", :port => 3307) do |conn|
     fiber.resume
   end
 end
-
-#
-# INSERT INTO posts VALUE("igvita2", (('org', 'PostRank'),('nickname', 'igrigorik'),('title', 'hello world')));
-# select * from posts;
-# select * from posts where id = 'igvita';
-#
