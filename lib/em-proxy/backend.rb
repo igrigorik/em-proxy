@@ -11,6 +11,7 @@ module EventMachine
 
       def connection_completed
         debug [@name, :conn_complete]
+        @plexer.connected(@name)
         @connected.succeed
       end
 

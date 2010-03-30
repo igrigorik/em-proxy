@@ -2,12 +2,12 @@ module EventMachine
   module ProxyServer
     class Connection < EventMachine::Connection
       attr_accessor :debug
-      
+
       ##### Proxy Methods
       def on_data(&blk); @on_data = blk; end
       def on_response(&blk); @on_response = blk; end
       def on_finish(&blk); @on_finish = blk; end
-      def on_connect(&blk); blk.call; end
+      def on_connect(&blk); @on_connect = blk; end
 
       ##### EventMachine
       def initialize(options)
@@ -17,7 +17,7 @@ module EventMachine
 
       def receive_data(data)
         debug [:connection, data]
-        processed = @on_data.call(data)
+        processed = @on_data.call(data) if @on_data
 
         return if processed == :async or processed.nil?
         relay_to_servers(processed)
@@ -38,7 +38,7 @@ module EventMachine
           s.send_data data unless data.nil?
         end
       end
-      
+
       #
       # initialize connections to backend servers
       #
@@ -66,13 +66,18 @@ module EventMachine
       def relay_from_backend(name, data)
         debug [:relay_from_backend, name, data]
 
-        data = @on_response.call(name, data)
+        data = @on_response.call(name, data) if @on_response
         send_data data unless data.nil?
+      end
+
+      def connected(name)
+        debug [:connected]
+        @on_connect.call(name) if @on_connect
       end
 
       def unbind
         debug [:unbind, :connection]
-      
+
         # terminate any unfinished connections
         @servers.values.compact.each do |s|
           s.close_connection
@@ -85,7 +90,7 @@ module EventMachine
 
         # if all connections are terminated downstream, then notify client
         close_connection_after_writing if @servers.values.compact.size.zero?
-        
+
         if @on_finish
           @on_finish.call(name)
 
@@ -95,7 +100,7 @@ module EventMachine
       end
 
       private
-      
+
       def debug(*data)
         if @debug
           require 'pp'
