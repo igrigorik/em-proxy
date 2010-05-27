@@ -57,7 +57,8 @@ module EventMachine
       # [ip, port] of the connected client
       #
       def peer
-        @peer ||= Socket.unpack_sockaddr_in(get_peername).reverse
+        peername = get_peername
+        @peer ||= peername ? Socket.unpack_sockaddr_in(peername).reverse : nil
       end
 
       #
