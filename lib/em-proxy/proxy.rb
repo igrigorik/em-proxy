@@ -9,7 +9,7 @@ class Proxy
 
       EventMachine::start_server(options[:host], options[:port],
                                  EventMachine::ProxyServer::Connection, options) do |c|
-        blk.call(c)
+        c.instance_eval(&blk)
       end
     end
   end
