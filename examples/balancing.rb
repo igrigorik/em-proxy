@@ -2,7 +2,7 @@ require 'lib/em-proxy'
 require 'ansi/code'
 require 'rack'
 
-module BalancedProxy
+module BalancingProxy
   extend self
 
   BACKENDS = [
@@ -141,9 +141,9 @@ if __FILE__ == $0
     $servers << Process.fork { Rack::Handler::WEBrick.run(app, {:Host => "0.0.0.0", :Port => "300#{i}"}) }
   end
 
-  puts ANSI::Code::green_on_black { "\n=> Send multiple requests to the proxy by running `ruby balanced-client.rb`\n" }
+  puts ANSI::Code::green_on_black { "\n=> Send multiple requests to the proxy by running `ruby balancing-client.rb`\n" }
 
   # Start proxy
-  BalancedProxy::Server.run
+  BalancingProxy::Server.run
 
 end

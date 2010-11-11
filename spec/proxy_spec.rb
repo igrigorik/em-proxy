@@ -166,10 +166,10 @@ describe Proxy do
   end
 end
 
-require 'examples/balanced.rb'
+require 'examples/balancing'
 require 'rack'
 
-describe BalancedProxy do
+describe BalancingProxy do
 
   before(:all) do
     @original_stdout = $stdout
@@ -181,33 +181,37 @@ describe BalancedProxy do
     $stdout = @original_stdout
   end
 
-  it "should select first proxy when all proxies has the same load" do
-    class BalancedProxy::Backend
-      def self.list
-        @list ||= [
-          {"http://127.0.0.3:3000" => 0},
-          {"http://127.0.0.2:3000" => 0},
-          {"http://127.0.0.1:3000" => 0}
-        ]
+  context "when using the 'balanced' strategy" do
+
+    it "should select first proxy when all proxies has the same load" do
+      class BalancingProxy::Backend
+        def self.list
+          @list ||= [
+            {"http://127.0.0.3:3000" => 0},
+            {"http://127.0.0.2:3000" => 0},
+            {"http://127.0.0.1:3000" => 0}
+          ]
+        end
       end
+
+      BalancingProxy::Backend.select.host.should == '127.0.0.3'
     end
 
-    BalancedProxy::Backend.select.host.should == '127.0.0.3'
-  end
-
-  it "should select the least loaded proxy" do
-    class BalancedProxy::Backend
-      def self.list
-        @list ||= [
-          {"http://127.0.0.3:3000" => 2},
-          {"http://127.0.0.2:3000" => 1},
-          {"http://127.0.0.1:3000" => 0}
-        ]
+    it "should select the least loaded proxy" do
+      class BalancingProxy::Backend
+        def self.list
+          @list ||= [
+            {"http://127.0.0.3:3000" => 2},
+            {"http://127.0.0.2:3000" => 1},
+            {"http://127.0.0.1:3000" => 0}
+          ]
+        end
       end
+
+      BalancingProxy::Backend.select.host.should == '127.0.0.1'
+      BalancingProxy::Backend.select.host.should == '127.0.0.2'
     end
 
-    BalancedProxy::Backend.select.host.should == '127.0.0.1'
-    BalancedProxy::Backend.select.host.should == '127.0.0.2'
   end
 
 end
