@@ -173,7 +173,7 @@ describe BalancingProxy do
 
   before(:each) do
     class BalancingProxy::Backend
-      @list = nil
+      @list = nil; @pool = nil
     end
   end
 
@@ -204,6 +204,25 @@ describe BalancingProxy do
       BalancingProxy::Backend.select(:random).host.should == '127.0.0.1'
     end
 
+  end
+
+  context "when using the 'roundrobin' strategy" do
+    it "should select backends in rotating order" do
+      class BalancingProxy::Backend
+        def self.list
+          @list ||= [
+            {"http://127.0.0.1:3000" => 0},
+            {"http://127.0.0.2:3000" => 0},
+            {"http://127.0.0.3:3000" => 0}
+          ]
+        end
+      end
+
+      BalancingProxy::Backend.select(:roundrobin).host.should == '127.0.0.1'
+      BalancingProxy::Backend.select(:roundrobin).host.should == '127.0.0.2'
+      BalancingProxy::Backend.select(:roundrobin).host.should == '127.0.0.3'
+      BalancingProxy::Backend.select(:roundrobin).host.should == '127.0.0.1'
+    end
   end
 
   context "when using the 'balanced' strategy" do

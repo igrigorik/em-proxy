@@ -34,6 +34,9 @@ module BalancingProxy
       case @strategy
         when :balanced
           backend = new list.sort { |a,b| a.values <=> b.values }.first.keys.first
+        when :roundrobin
+          @pool = list.clone if @pool.nil? || @pool.empty?
+          backend = new @pool.shift.keys.first
         when :random
           backend = new list[ rand(list.size-1) ].keys.first
         else
