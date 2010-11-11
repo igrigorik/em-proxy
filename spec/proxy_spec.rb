@@ -171,6 +171,16 @@ require 'rack'
 
 describe BalancedProxy do
 
+  before(:all) do
+    @original_stdout = $stdout
+    # Silence the noisy STDOUT output
+    $stdout = File.new('/dev/null', 'w')
+  end
+
+  after(:all) do
+    $stdout = @original_stdout
+  end
+
   it "should select first proxy when all proxies has the same load" do
     class BalancedProxy::Backend
       def self.list
