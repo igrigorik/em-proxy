@@ -18,7 +18,7 @@ module BalancingProxy
   #
   class Backend
 
-    attr_reader :url, :host, :port
+    attr_reader :url, :host, :port, :strategy
     alias       :to_s :url
 
     def initialize(url)
@@ -29,10 +29,19 @@ module BalancingProxy
 
     # Select the least loaded backend
     #
-    def self.select
-      backend = new list.sort { |a,b| a.values <=> b.values }.first.keys.first
+    def self.select(strategy = :balanced)
+      @strategy = strategy.to_sym
+      case @strategy
+        when :balanced
+          backend = new list.sort { |a,b| a.values <=> b.values }.first.keys.first
+        when :random
+          backend = new list[ rand(list.size-1) ].keys.first
+        else
+          raise ArgumentError, "Unknown strategy: #{@strategy}"
+      end
+
       puts "---> Selecting #{backend}"
-      backend.increment_counter
+      backend.increment_counter if @strategy == :balanced
       yield backend if block_given?
       backend
     end
@@ -86,7 +95,7 @@ module BalancingProxy
     def on_finish
       lambda do |backend|
         puts black_on_magenta { 'on_finish'.ljust(12) } + " for #{backend}", ''
-        backend.decrement_counter
+        backend.decrement_counter if backend.strategy == :balanced
       end
     end
 

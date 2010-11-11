@@ -171,6 +171,12 @@ require 'rack'
 
 describe BalancingProxy do
 
+  before(:each) do
+    class BalancingProxy::Backend
+      @list = nil
+    end
+  end
+
   before(:all) do
     @original_stdout = $stdout
     # Silence the noisy STDOUT output
@@ -181,9 +187,28 @@ describe BalancingProxy do
     $stdout = @original_stdout
   end
 
+  context "when using the 'random' strategy" do
+
+    it "should select random backend" do
+      class BalancingProxy::Backend
+        def self.list
+          @list ||= [
+            {"http://127.0.0.1:3000" => 0},
+            {"http://127.0.0.2:3000" => 0},
+            {"http://127.0.0.3:3000" => 0}
+          ]
+        end
+      end
+
+      srand(0)
+      BalancingProxy::Backend.select(:random).host.should == '127.0.0.1'
+    end
+
+  end
+
   context "when using the 'balanced' strategy" do
 
-    it "should select first proxy when all proxies has the same load" do
+    it "should select the first backend when all backends have the same load" do
       class BalancingProxy::Backend
         def self.list
           @list ||= [
@@ -197,7 +222,7 @@ describe BalancingProxy do
       BalancingProxy::Backend.select.host.should == '127.0.0.3'
     end
 
-    it "should select the least loaded proxy" do
+    it "should select the least loaded backend" do
       class BalancingProxy::Backend
         def self.list
           @list ||= [
@@ -209,7 +234,9 @@ describe BalancingProxy do
       end
 
       BalancingProxy::Backend.select.host.should == '127.0.0.1'
+      BalancingProxy::Backend.select.host.should == '127.0.0.1'
       BalancingProxy::Backend.select.host.should == '127.0.0.2'
+      BalancingProxy::Backend.select.host.should == '127.0.0.3'
     end
 
   end
