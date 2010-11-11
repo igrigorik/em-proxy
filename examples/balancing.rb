@@ -27,7 +27,7 @@ module BalancingProxy
       @host, @port = parsed.host, parsed.port
     end
 
-    # Select the least loaded backend
+    # Select backend: balanced, round-robin or random
     #
     def self.select(strategy = :balanced)
       @strategy = strategy.to_sym

@@ -187,6 +187,14 @@ describe BalancingProxy do
     $stdout = @original_stdout
   end
 
+  context "generally" do
+
+    it "should raise error for unknown strategy" do
+      BalancingProxy::Backend.select(:asdf).should raise_error(ArgumentError)
+    end
+
+  end
+
   context "when using the 'random' strategy" do
 
     it "should select random backend" do
