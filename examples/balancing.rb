@@ -1,6 +1,6 @@
 require 'lib/em-proxy'
 require 'ansi/code'
-require 'rack'
+require 'uri'
 
 module BalancingProxy
   extend self
@@ -132,6 +132,8 @@ module BalancingProxy
 end
 
 if __FILE__ == $0
+
+  require 'rack'
 
   class Proxy
     def self.stop

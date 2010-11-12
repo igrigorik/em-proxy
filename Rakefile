@@ -9,7 +9,7 @@ begin
     gemspec.email = "ilya@igvita.com"
     gemspec.homepage = "http://github.com/igrigorik/em-proxy"
     gemspec.authors = ["Ilya Grigorik"]
-    gemspec.add_dependency('eventmachine', '>= 0.12.9')
+    gemspec.add_dependency("eventmachine", ">= 0.12.9")
     gemspec.rubyforge_project = "em-proxy"
   end
 
