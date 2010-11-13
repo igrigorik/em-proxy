@@ -63,9 +63,7 @@ module BalancingProxy
           raise ArgumentError, "Unknown strategy: #{@strategy}"
       end
 
-      puts "---> Selecting #{backend}" if STDOUT.tty?
-      backend.increment_counter if Backend.strategy == :balanced
-
+      Callbacks.on_select.call(backend)
       yield backend if block_given?
       backend
     end
@@ -101,6 +99,13 @@ module BalancingProxy
   module Callbacks
     include ANSI::Code
     extend  self
+
+    def on_select
+      lambda do |backend|
+        puts black_on_white { 'on_select'.ljust(12) } + " #{backend.inspect}"
+        backend.increment_counter if Backend.strategy == :balanced
+      end
+    end
 
     def on_connect
       lambda do |backend|
