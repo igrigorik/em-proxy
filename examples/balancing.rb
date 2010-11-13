@@ -35,7 +35,7 @@ module BalancingProxy
   #
   class Backend
 
-    attr_reader   :url, :host, :port, :strategy
+    attr_reader   :url, :host, :port
     attr_accessor :load
     alias         :to_s :url
 
@@ -64,7 +64,7 @@ module BalancingProxy
       end
 
       puts "---> Selecting #{backend}" if STDOUT.tty?
-      backend.increment_counter if @strategy == :balanced
+      backend.increment_counter if Backend.strategy == :balanced
 
       yield backend if block_given?
       backend
@@ -74,6 +74,12 @@ module BalancingProxy
     #
     def self.list
       @list ||= BACKENDS.map { |backend| new backend }
+    end
+
+    # Return balancing strategy
+    #
+    def self.strategy
+      @strategy
     end
 
     # Increment "currently serving requests" counter
@@ -119,7 +125,7 @@ module BalancingProxy
     def on_finish
       lambda do |backend|
         puts black_on_magenta { 'on_finish'.ljust(12) } + " for #{backend}", ''
-        backend.decrement_counter if backend.strategy == :balanced
+        backend.decrement_counter if Backend.strategy == :balanced
       end
     end
 
