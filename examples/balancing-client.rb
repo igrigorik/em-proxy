@@ -9,7 +9,6 @@ count = ENV['COUNT'] || 5
 threads = []
 count.to_i.times do |i|
   threads << Thread.new do
-    # puts "* Request #{i+1}\n"
     proxy.start('www.example.com') do |http|
       puts http.get('/').body
       puts "^^^ #{i+1} " + '-'*80 + "\n\n"

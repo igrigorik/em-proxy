@@ -2,13 +2,30 @@ require 'lib/em-proxy'
 require 'ansi/code'
 require 'uri'
 
+# = Balancing Proxy
+#
+# A simple example of a balancing, reverse/forward proxy such as Nginx or HAProxy.
+#
+# Given a list of backends, it's able to distribute requests to backends
+# via different strategies (_random_, _roundrobin_, _balanced_), see <tt>Backend.select</tt>.
+#
+# This example is provided for didactic purposes. Nevertheless, based on some preliminary benchmarks
+# and live tests, it performs well in production usage.
+#
+# You can customize the behaviour of the proxy by changing the <tt>BalancingProxy::Callbacks</tt>
+# callbacks. To give you some ideas:
+#
+# * Store statistics for the proxy load in Redis (eg.: <tt>$redis.incr "proxy>backends>#{backend}>total"</tt>)
+# * Use Redis' _SortedSet_ instead of updating the <tt>Backend.list</tt> hash to allow for polling from external process
+# * Use <b>em-websocket</b>[https://github.com/igrigorik/em-websocket] to build a web frontend for monitoring
+#
 module BalancingProxy
   extend self
 
   BACKENDS = [
-    {"http://0.0.0.0:3000"  => 0},
-    {"http://0.0.0.0:3001" => 0},
-    {"http://0.0.0.0:3002"  => 0}
+    {:url => "http://0.0.0.0:3000"},
+    {:url => "http://0.0.0.0:3001"},
+    {:url => "http://0.0.0.0:3002"}
   ]
 
   # Represents a "backend", ie. the endpoint for the proxy.
@@ -18,11 +35,14 @@ module BalancingProxy
   #
   class Backend
 
-    attr_reader :url, :host, :port, :strategy
-    alias       :to_s :url
+    attr_reader   :url, :host, :port, :strategy
+    attr_accessor :load
+    alias         :to_s :url
 
-    def initialize(url)
-      @url = url
+    def initialize(options={})
+      raise ArgumentError, "Please provide a :url and :load" unless options[:url]
+      @url   = options[:url]
+      @load  = options[:load] || 0
       parsed = URI.parse(@url)
       @host, @port = parsed.host, parsed.port
     end
@@ -33,18 +53,19 @@ module BalancingProxy
       @strategy = strategy.to_sym
       case @strategy
         when :balanced
-          backend = new list.sort { |a,b| a.values <=> b.values }.first.keys.first
+          backend = list.sort_by { |b| b.load }.first
         when :roundrobin
-          @pool = list.clone if @pool.nil? || @pool.empty?
-          backend = new @pool.shift.keys.first
+          @pool   = list.clone if @pool.nil? || @pool.empty?
+          backend = @pool.shift
         when :random
-          backend = new list[ rand(list.size-1) ].keys.first
+          backend = list[ rand(list.size-1) ]
         else
           raise ArgumentError, "Unknown strategy: #{@strategy}"
       end
 
-      puts "---> Selecting #{backend}"
+      puts "---> Selecting #{backend}" if STDOUT.tty?
       backend.increment_counter if @strategy == :balanced
+
       yield backend if block_given?
       backend
     end
@@ -52,19 +73,19 @@ module BalancingProxy
     # List of backends
     #
     def self.list
-      @list ||= BACKENDS
+      @list ||= BACKENDS.map { |backend| new backend }
     end
 
     # Increment "currently serving requests" counter
     #
     def increment_counter
-      Backend.list.select { |b| b.keys.first == url }.first[url] += 1
+      self.load += 1
     end
 
     # Decrement "currently serving requests" counter
     #
     def decrement_counter
-      Backend.list.select { |b| b.keys.first == url }.first[url] -= 1
+      self.load -= 1
     end
 
   end
