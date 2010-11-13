@@ -129,7 +129,7 @@ module BalancingProxy
 
     def on_finish
       lambda do |backend|
-        puts black_on_magenta { 'on_finish'.ljust(12) } + " for #{backend}", ''
+        puts black_on_cyan { 'on_finish'.ljust(12) } + " for #{backend}", ''
         backend.decrement_counter if Backend.strategy == :balanced
       end
     end
