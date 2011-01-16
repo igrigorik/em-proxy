@@ -12,7 +12,11 @@ Gem::Specification.new do |s|
   s.description = s.summary
 
   s.rubyforge_project = "em-proxy"
-  s.required_ruby_version = Gem::Requirement.new(">= 1.9")
+
+  s.add_dependency "eventmachine"
+  s.add_development_dependency "rspec"
+  s.add_development_dependency "em-http-request"
+  s.add_development_dependency "ansi"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

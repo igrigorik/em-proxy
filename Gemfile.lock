@@ -1,0 +1,36 @@
+PATH
+  remote: .
+  specs:
+    em-proxy (0.1.4)
+      eventmachine
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    addressable (2.2.2)
+    ansi (1.2.2)
+    diff-lcs (1.1.2)
+    em-http-request (0.3.0)
+      addressable (>= 2.0.0)
+      escape_utils
+      eventmachine (>= 0.12.9)
+    escape_utils (0.1.9)
+    eventmachine (0.12.11)
+    rspec (2.4.0)
+      rspec-core (~> 2.4.0)
+      rspec-expectations (~> 2.4.0)
+      rspec-mocks (~> 2.4.0)
+    rspec-core (2.4.0)
+    rspec-expectations (2.4.0)
+      diff-lcs (~> 1.1.2)
+    rspec-mocks (2.4.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  ansi
+  em-http-request
+  em-proxy!
+  eventmachine
+  rspec
