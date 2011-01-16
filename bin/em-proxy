@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+
+lib = File.expand_path(File.dirname(__FILE__) + '/../lib')
+$LOAD_PATH.unshift(lib) if File.directory?(lib) && !$LOAD_PATH.include?(lib)
+
+require 'em-proxy'
+require 'optparse'
+
+ARGV << '--help' if ARGV.empty?
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: em-proxy [options]"
+
+  opts.on("-l", "--listen [PORT]", Integer, "Port to listen on") do |v|
+    options[:listen] = v
+  end
+
+  opts.on("-d", "--duplex [host:port, ...]", Array, "List of backends to duplex data to") do |v|
+    options[:duplex] = v
+  end
+
+  opts.on("-r", "--relay [hostname:port]", String, "Relay endpoint: hostname:port") do |v|
+    options[:relay] = v.split(":")
+  end
+
+  opts.on("-v", "--verbose", "Run in debug mode") do |v|
+    options[:verbose] = v
+  end
+end.parse!
+
+
+Proxy.start(:host => "0.0.0.0", :port => options[:listen] , :debug => options[:verbose]) do |conn|
+  conn.server :relay, :host => options[:relay].first, :port => options[:relay].last.to_i
+
+  options[:duplex].each_with_index do |backend,i|
+    hostname, port = backend.split(":")
+    conn.server "backend_#{i}".intern, :host => hostname, :port => port.to_i
+  end if options[:duplex]
+
+  conn.on_data do |data|
+    data
+  end
+
+  conn.on_response do |server, resp|
+    resp if server == :relay
+  end
+end
