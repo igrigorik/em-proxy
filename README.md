@@ -1,25 +1,27 @@
-= EM-Proxy
+# EM-Proxy
 
 EventMachine Proxy DSL for writing high-performance transparent / intercepting proxies in Ruby.
 
-- Slides from RailsConf 2009: http://bit.ly/D7oWB
-- GoGaRuCo notes & Slides: http://www.igvita.com/2009/04/20/ruby-proxies-for-scale-and-monitoring/
+- [Slides from RailsConf 2009](http://bit.ly/D7oWB)
+- [GoGaRuCo notes & Slides](http://www.igvita.com/2009/04/20/ruby-proxies-for-scale-and-monitoring/)
 
-== Getting started
+## Getting started
 
-  $> gem install em-proxy
-  $> em-proxy
-  Usage: em-proxy [options]
+    $> gem install em-proxy
+    $> em-proxy
+    Usage: em-proxy [options]
       -l, --listen [PORT]              Port to listen on
       -d, --duplex [host:port, ...]    List of backends to duplex data to
       -r, --relay [hostname:port]      Relay endpoint: hostname:port
       -v, --verbose                    Run in debug mode
 
-  $> em-proxy -l 8080 -r localhost:8081 -d localhost:8082,localhost:8083 -v
+    $> em-proxy -l 8080 -r localhost:8081 -d localhost:8082,localhost:8083 -v
 
 The above will start em-proxy on port 8080, relay and respond with data from port 8081, and also (optional) duplicate all traffic to ports 8082 and 8083 (and discard their responses).
 
-== Simple port forwarding proxy
+EngineYard has shared a great hands-on tutorial for deploying em-proxy: [Load Testing your AppCloud Environment using em-proxy](http://docs.engineyard.com/appcloud/guides/migrating/em-proxy)
+
+## Simple port forwarding proxy
 
     Proxy.start(:host => "0.0.0.0", :port => 80, :debug => true) do |conn|
       conn.server :srv, :host => "127.0.0.1", :port => 81
@@ -46,6 +48,7 @@ The above will start em-proxy on port 8080, relay and respond with data from por
     end
 
 For more examples see the /examples directory.
+
 - SMTP Spam Filtering
 - Duplicating traffic
 - Selective forwarding
@@ -53,30 +56,10 @@ For more examples see the /examples directory.
 - etc.
 
 A schema-free MySQL proof of concept, via an EM-Proxy server:
+
 - http://www.igvita.com/2010/03/01/schema-free-mysql-vs-nosql/
 - Code in examples/schemaless-mysql
 
-== License
+## License
 
-(The MIT License)
-
-Copyright (c) 2010 Ilya Grigorik
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-'Software'), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+The MIT License - Copyright (c) 2010 Ilya Grigorik
