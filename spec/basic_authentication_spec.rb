@@ -12,7 +12,7 @@ describe BasicAuthentication do
       request = BasicAuthentication::Request.new(connection)
       request << "GET / HTTP/1.1\r\nHost: localhost:9000\r\nUser-Agent: Test\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8,application/json\r\nAccept-Language: cs,en-us;q=0.7,en;q=0.3\r\nAccept-Encoding: gzip, deflate\r\nAccept-Charset: ISO-8859-2,utf-8;q=0.7,*;q=0.7\r\nConnection: keep-alive\r\n\r\n"
 
-      request.validate!
+      request.allowed?
     end
 
   end
@@ -45,7 +45,7 @@ describe BasicAuthentication do
       request = BasicAuthentication::Request.new(connection)
       request << "GET / HTTP/1.1\r\nHost: localhost:9000\r\nUser-Agent: Test\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8,application/json\r\nAccept-Language: cs,en-us;q=0.7,en;q=0.3\r\nAccept-Encoding: gzip, deflate\r\nAccept-Charset: ISO-8859-2,utf-8;q=0.7,*;q=0.7\r\nConnection: keep-alive\r\nAuthorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=\r\n\r\n"
 
-      request.validate!
+      request.allowed?
     end
 
     it "should return request without authorization header when credentials are valid" do

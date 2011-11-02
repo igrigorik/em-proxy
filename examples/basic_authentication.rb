@@ -63,13 +63,16 @@ module BasicAuthentication
     # * Request authentication if no authentication header is not provided
     # * Send "Forbidden" response if credentials are not valid
     #
-    def validate!
+    def allowed?
       unless credentials.username
         @connection.send_data RESPONSES[:request_authentication]
-        return
+        return false
       end
-
-      @connection.send_data RESPONSES[:forbidden] unless credentials.valid?
+      unless credentials.valid?
+        @connection.send_data RESPONSES[:forbidden]
+        return false
+      end
+      true
     end
 
     # Return request (without the "Authorization" header) if valid
@@ -77,8 +80,7 @@ module BasicAuthentication
     # You can modify the request in this method (change the URL according to username, add headers, modify body, etc)
     #
     def to_s
-      validate!
-      "#{http_method} #{request_url} HTTP/#{@parser.http_version.join('.')}\r\n#{headers.map {|h| "#{h[0]} : #{h[1]}"}.join("\r\n")}\r\n\r\n#{body}"
+      "#{http_method} #{request_url} HTTP/#{@parser.http_version.join('.')}\r\n#{headers.map {|h| "#{h[0]} : #{h[1]}"}.join("\r\n")}\r\n\r\n#{body}" if allowed?
     end
 
 
