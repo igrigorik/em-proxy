@@ -32,11 +32,17 @@ module BasicAuthentication
       @connection = connection
       @body   = ''
       @parser = Http::Parser.new
+      @completed = false
 
       # If the request contains a body, pass it to http_parser
       #
       @parser.on_body = lambda do |chunk|
         @body << chunk
+      end
+
+      # Headers and body is all parsed
+      @parser.on_message_complete = lambda do
+        @completed = true
       end
     end
 
@@ -44,6 +50,11 @@ module BasicAuthentication
     #
     def << data
       @parser << data
+    end
+
+    # Indicates that request is completely recieved
+    def completed?
+      @completed
     end
 
     # Proxy methods for parsed request properties
@@ -112,9 +123,15 @@ module BasicAuthentication
 
     def process_request(connection)
       lambda do |data|
-        request = Request.new(connection)
-        request << data
-        request.to_s
+        @request ||= Request.new(connection)
+        @request << data
+
+        if @request.completed?
+          data = @request.to_s
+          @request = nil
+          data
+        end
+
       end
     end
 
