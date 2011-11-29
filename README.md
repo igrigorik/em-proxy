@@ -2,6 +2,7 @@
 
 EventMachine Proxy DSL for writing high-performance transparent / intercepting proxies in Ruby.
 
+- EngineYard tutorial: [Load testing your environment using em-proxy](http://docs.engineyard.com/em-proxy.html)
 - [Slides from RailsConf 2009](http://bit.ly/D7oWB)
 - [GoGaRuCo notes & Slides](http://www.igvita.com/2009/04/20/ruby-proxies-for-scale-and-monitoring/)
 
@@ -19,7 +20,6 @@ EventMachine Proxy DSL for writing high-performance transparent / intercepting p
 
 The above will start em-proxy on port 8080, relay and respond with data from port 8081, and also (optional) duplicate all traffic to ports 8082 and 8083 (and discard their responses).
 
-EngineYard has shared a great hands-on tutorial for deploying em-proxy: [Load Testing your AppCloud Environment using em-proxy](http://docs.engineyard.com/appcloud/guides/migrating/em-proxy)
 
 ## Simple port forwarding proxy
 
