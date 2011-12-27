@@ -1,4 +1,6 @@
-require 'lib/em-proxy'
+$:<< '../lib' << 'lib'
+
+require 'em-proxy'
 require 'ansi/code'
 require 'uri'
 

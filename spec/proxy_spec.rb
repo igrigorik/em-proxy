@@ -1,4 +1,4 @@
-require 'spec/helper'
+require 'helper'
 
 describe Proxy do
 
@@ -68,7 +68,7 @@ describe Proxy do
       end
 
       Proxy.start(:host => "0.0.0.0", :port => 8080) do |conn|
-        conn.server :goog, :host => "google.com", :port => 80
+        conn.server :bing, :host => "google.com", :port => 80
         conn.server :yhoo, :host => "yahoo.com", :port => 80
         conn.on_data { |data| data }
 

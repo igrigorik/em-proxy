@@ -1,5 +1,5 @@
-require 'spec/helper'
-require 'examples/balancing'
+require 'helper'
+require File.join(File.dirname(__FILE__), '../', 'examples/balancing')
 
 describe BalancingProxy do
 
