@@ -1,12 +1,11 @@
 module EventMachine
   module ProxyServer
     class Backend < EventMachine::Connection
-      attr_accessor :plexer, :data, :name, :debug
+      attr_accessor :plexer, :name, :debug
 
       def initialize(debug = false)
         @debug = debug
         @connected = EM::DefaultDeferrable.new
-        @data = []
       end
 
       def connection_completed
@@ -17,7 +16,6 @@ module EventMachine
 
       def receive_data(data)
         debug [@name, data]
-        @data.push data
         @plexer.relay_from_backend(@name, data)
       end
 
