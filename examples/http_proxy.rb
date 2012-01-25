@@ -16,7 +16,7 @@ Proxy.start(:host => host, :port => port) do |conn|
     session = UUID.generate
     puts "New session: #{session} (#{h.inspect})"
 
-    host, port = h['Host'].split(':')
+    host, port = h['Host'].split(':') if h['Host']
     conn.server session, :host => host, :port => (port || 80)
     conn.relay_to_servers @buffer
 
