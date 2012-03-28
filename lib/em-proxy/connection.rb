@@ -95,7 +95,7 @@ module EventMachine
         end
 
         # if all connections are terminated downstream, then notify client
-        if @servers.values.compact.size.zero? and close != :keep
+        if (@servers.values.compact.size.zero? && close != :keep) || (close == :close)
           close_connection_after_writing
         end
       end
