@@ -36,6 +36,15 @@ module EventMachine
 
         servers.each do |s|
           s.send_data data unless data.nil?
+
+          ### if you do not care about the reply, we will simply
+          ### close the connection to the backend server after we 
+          ### sent the data to it. Great for doing shadow traffic
+          ### --jib
+          if s.drop_reply then
+            debug [:drop_reply, s.name]
+            s.close_connection_after_writing
+          end
         end
       end
 
@@ -43,7 +52,8 @@ module EventMachine
       # initialize connections to backend servers
       #
       def server(name, opts)
-        srv = EventMachine::connect(opts[:host], opts[:port], EventMachine::ProxyServer::Backend, @debug) do |c|
+        srv = EventMachine::connect(opts[:host], opts[:port],
+            EventMachine::ProxyServer::Backend, @debug, opts[:drop_reply]) do |c|
           c.name = name
           c.plexer = self
           c.proxy_incoming_to(self, 10240) if opts[:relay_server]

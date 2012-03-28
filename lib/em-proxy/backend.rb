@@ -1,11 +1,15 @@
 module EventMachine
   module ProxyServer
     class Backend < EventMachine::Connection
-      attr_accessor :plexer, :name, :debug
+      attr_accessor :plexer, :name, :debug, :drop_reply
 
-      def initialize(debug = false)
+      ### the replies from relay servers may not be interesting,
+      ### so add an option to drop them. Slow relay servers can
+      ### introduce wait time for next connection --jib
+      def initialize(debug = false, drop_reply = false)
         @debug = debug
         @connected = EM::DefaultDeferrable.new
+        @drop_reply = drop_reply
       end
 
       def connection_completed

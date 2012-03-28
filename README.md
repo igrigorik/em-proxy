@@ -15,6 +15,7 @@ EventMachine Proxy DSL for writing high-performance transparent / intercepting p
       -d, --duplex [host:port, ...]    List of backends to duplex data to
       -r, --relay [hostname:port]      Relay endpoint: hostname:port
       -v, --verbose                    Run in debug mode
+      -D, --drop-reply                 Drop replies from Relay servers - use for shadow traffic
 
     $> em-proxy -l 8080 -r localhost:8081 -d localhost:8082,localhost:8083 -v
 

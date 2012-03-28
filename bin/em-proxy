@@ -27,6 +27,14 @@ OptionParser.new do |opts|
   opts.on("-v", "--verbose", "Run in debug mode") do |v|
     options[:verbose] = v
   end
+
+  ### relay servers might take longer to respond, and that may hold up the next available
+  ### client connection. So if you don't care about the relay server response, just drop
+  ### it. --jib
+  opts.on("-D", "--drop-reply", "Drop reply from relay servers") do |v|
+    options[:drop_reply] = v
+  end
+
 end.parse!
 
 
@@ -35,7 +43,7 @@ Proxy.start(:host => "0.0.0.0", :port => options[:listen] , :debug => options[:v
 
   options[:duplex].each_with_index do |backend,i|
     hostname, port = backend.split(":")
-    conn.server "backend_#{i}".intern, :host => hostname, :port => port.to_i
+    conn.server "backend_#{i}".intern, :host => hostname, :port => port.to_i, :drop_reply => options[:drop_reply]
   end if options[:duplex]
 
   conn.on_data do |data|
