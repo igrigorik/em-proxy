@@ -1,11 +1,16 @@
 module EventMachine
   module ProxyServer
     class Backend < EventMachine::Connection
-      attr_accessor :plexer, :name, :debug
+      attr_accessor :plexer, :name, :debug, :drop_reply, :connect_timeout
 
-      def initialize(debug = false)
+      ### the replies from duplex servers may not be interesting,
+      ### so add an option to drop them. Slow duplex servers can
+      ### introduce wait time for next connection --jib
+      def initialize(debug = false, drop_reply = false, connect_timeout = 5)
         @debug = debug
         @connected = EM::DefaultDeferrable.new
+        @drop_reply = drop_reply
+        @connect_timeout = connect_timeout
       end
 
       def connection_completed
