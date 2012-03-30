@@ -3,8 +3,8 @@ module EventMachine
     class Backend < EventMachine::Connection
       attr_accessor :plexer, :name, :debug, :drop_reply
 
-      ### the replies from relay servers may not be interesting,
-      ### so add an option to drop them. Slow relay servers can
+      ### the replies from duplex servers may not be interesting,
+      ### so add an option to drop them. Slow duplex servers can
       ### introduce wait time for next connection --jib
       def initialize(debug = false, drop_reply = false)
         @debug = debug
