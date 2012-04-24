@@ -1,6 +1,7 @@
+require 'rubygems'
 require 'em-proxy'
-require 'http/parser' # gem install http_parser.rb
-require 'uuid'        # gem install uuid
+require 'http_parser.rb' # gem install http_parser.rb
+require 'uuid'           # gem install uuid
 
 # > ruby em-proxy-http.rb
 # > curl --proxy localhost:9889 www.google.com
@@ -20,7 +21,7 @@ Proxy.start(:host => host, :port => port) do |conn|
     conn.server session, :host => host, :port => (port || 80)
     conn.relay_to_servers @buffer
 
-    @buffer.clear
+    @buffer = ''
   end
 
   @buffer = ''
