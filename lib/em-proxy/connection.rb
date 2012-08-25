@@ -62,6 +62,14 @@ module EventMachine
       end
 
       #
+      # [ip, port] of the local server connect
+      #
+      def sock
+        sockname = get_sockname
+        @sock ||= sockname ? Socket.unpack_sockaddr_in(sockname).reverse : nil
+      end
+
+      #
       # relay data from backend server to client
       #
       def relay_from_backend(name, data)

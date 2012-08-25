@@ -18,7 +18,7 @@ Proxy.start(:host => host, :port => port) do |conn|
     puts "New session: #{session} (#{h.inspect})"
 
     host, port = h['Host'].split(':')
-    conn.server session, :host => host, :port => (port || 80) #, :bind_host => conn.peer[0] - # for bind ip
+    conn.server session, :host => host, :port => (port || 80) #, :bind_host => conn.sock[0] - # for bind ip
                          
     conn.relay_to_servers @buffer
 
