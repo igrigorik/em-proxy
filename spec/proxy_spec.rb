@@ -133,7 +133,7 @@ describe Proxy do
     lambda {
       EM.run do
         EventMachine.add_timer(0.1) do
-          http =EventMachine::HttpRequest.new('http://127.0.0.1:8080/').get({:timeout => 1})
+          http = EventMachine::HttpRequest.new('http://127.0.0.1:8080/').get({:timeout => 1})
           http.callback { EventMachine.stop }
         end
 
@@ -151,7 +151,7 @@ describe Proxy do
     lambda {
       EM.run do
         EventMachine.add_timer(0.1) do
-          http =EventMachine::HttpRequest.new('http://127.0.0.1:8080/').get({:timeout => 1})
+          http = EventMachine::HttpRequest.new('http://127.0.0.1:8080/').get({:timeout => 1})
           http.callback { EventMachine.stop }
         end
 
