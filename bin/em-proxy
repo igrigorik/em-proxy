@@ -45,4 +45,8 @@ Proxy.start(:host => "0.0.0.0", :port => options[:listen] , :debug => options[:v
   conn.on_response do |server, resp|
     resp if server == :relay
   end
+
+  conn.on_finish do |server|
+    :close if server == :relay
+  end
 end
