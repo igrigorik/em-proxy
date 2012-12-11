@@ -14,6 +14,7 @@ EventMachine Proxy DSL for writing high-performance transparent / intercepting p
       -l, --listen [PORT]              Port to listen on
       -d, --duplex [host:port, ...]    List of backends to duplex data to
       -r, --relay [hostname:port]      Relay endpoint: hostname:port
+      -s, --socket [filename]          Relay endpoint: unix filename
       -v, --verbose                    Run in debug mode
 
     $> em-proxy -l 8080 -r localhost:8081 -d localhost:8082,localhost:8083 -v
