@@ -34,7 +34,7 @@ OptionParser.new do |opts|
 end.parse!
 
 
-Proxy.start(:host => "0.0.0.0", :port => options[:listen] , :debug => options[:verbose]) do |conn|
+EventMachine::Proxy.start(:host => "0.0.0.0", :port => options[:listen] , :debug => options[:verbose]) do |conn|
   if options[:socket]
     conn.server :socket, :socket => options[:socket]
   else

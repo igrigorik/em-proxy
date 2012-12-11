@@ -25,7 +25,7 @@ The above will start em-proxy on port 8080, relay and respond with data from por
 ## Simple port forwarding proxy
 
 ```ruby
-Proxy.start(:host => "0.0.0.0", :port => 80, :debug => true) do |conn|
+EventMachine::Proxy.start(:host => "0.0.0.0", :port => 80, :debug => true) do |conn|
   conn.server :srv, :host => "127.0.0.1", :port => 81
 
   # modify / process request stream

@@ -3,7 +3,7 @@ require 'em-http'
 require 'yaml'
 require 'net/http'
 
-Proxy.start(:host => "0.0.0.0", :port => 2524) do |conn|
+EventMachine::Proxy.start(:host => "0.0.0.0", :port => 2524) do |conn|
   conn.server :srv, :host => "127.0.0.1", :port => 2525
 
   RCPT_CMD = /RCPT TO:<(.*)?>\r\n/        # RCPT TO:<name@address.com>\r\n
@@ -43,7 +43,7 @@ Proxy.start(:host => "0.0.0.0", :port => 2524) do |conn|
 
     data
   end
- 
+
   conn.on_response do |server, resp|
     p [:resp, resp]
 

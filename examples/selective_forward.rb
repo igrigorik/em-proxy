@@ -1,6 +1,6 @@
 require 'lib/em-proxy'
 
-Proxy.start(:host => "0.0.0.0", :port => 80) do |conn|
+EventMachine::Proxy.start(:host => "0.0.0.0", :port => 80) do |conn|
   @start = Time.now
   @data = Hash.new("")
 
@@ -11,7 +11,7 @@ Proxy.start(:host => "0.0.0.0", :port => 80) do |conn|
     # rewrite User-Agent
     [data.gsub(/User-Agent: .*?\r\n/, 'User-Agent: em-proxy/0.1\r\n'), [:prod]]
   end
- 
+
   conn.on_response do |server, resp|
     # only render response from production
     @data[server] += resp
@@ -21,7 +21,7 @@ Proxy.start(:host => "0.0.0.0", :port => 80) do |conn|
   conn.on_finish do |name|
     p [:on_finish, name, Time.now - @start]
     unbind if name == :prod # terminate connection once prod is done
-   
+
     p @data if name == :done
   end
 end

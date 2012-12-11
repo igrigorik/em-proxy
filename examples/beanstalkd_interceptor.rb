@@ -1,6 +1,6 @@
 require 'lib/em-proxy'
 
-Proxy.start(:host => "0.0.0.0", :port => 11300) do |conn|
+EventMachine::Proxy.start(:host => "0.0.0.0", :port => 11300) do |conn|
   conn.server :srv, :host => "127.0.0.1", :port => 11301
 
   # put <pri> <delay> <ttr> <bytes>\r\n
@@ -21,7 +21,7 @@ Proxy.start(:host => "0.0.0.0", :port => 11300) do |conn|
 
     data
   end
- 
+
   conn.on_response do |backend, resp|
     p [:resp, resp]
     resp
