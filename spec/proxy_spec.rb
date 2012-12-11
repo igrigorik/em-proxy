@@ -86,6 +86,12 @@ describe Proxy do
 
           EventMachine.stop if seen.size == 2
         end
+
+        conn.on_finish do |name|
+          # keep the connection open if we're still expecting a response
+          seen.count == 2 ? :close : :keep
+        end
+
       end
     end
   end
