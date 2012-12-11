@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    em-proxy (0.1.6)
+    em-proxy (0.1.7)
       eventmachine
 
 GEM
@@ -17,7 +17,7 @@ GEM
       http_parser.rb (>= 0.5.2)
     em-socksify (0.1.0)
       eventmachine
-    eventmachine (1.0.0.beta.4)
+    eventmachine (1.0.0)
     http_parser.rb (0.5.3)
     rake (0.9.2.2)
     rspec (2.7.0)
