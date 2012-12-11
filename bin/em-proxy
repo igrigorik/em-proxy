@@ -24,6 +24,10 @@ OptionParser.new do |opts|
     options[:relay] = v.split(":")
   end
 
+  opts.on("-s", "--socket [filename]", String, "Relay endpoint: unix filename") do |v|
+    options[:socket] = v
+  end
+
   opts.on("-v", "--verbose", "Run in debug mode") do |v|
     options[:verbose] = v
   end
@@ -31,7 +35,11 @@ end.parse!
 
 
 Proxy.start(:host => "0.0.0.0", :port => options[:listen] , :debug => options[:verbose]) do |conn|
-  conn.server :relay, :host => options[:relay].first, :port => options[:relay].last.to_i
+  if options[:socket]
+    conn.server :socket, :soket => options[:socket]
+  else
+    conn.server :relay, :host => options[:relay].first, :port => options[:relay].last.to_i
+  end
 
   options[:duplex].each_with_index do |backend,i|
     hostname, port = backend.split(":")
