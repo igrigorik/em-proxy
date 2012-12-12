@@ -1,6 +1,7 @@
 require 'helper'
 
 describe Proxy do
+  include POSIX::Spawn
 
   def failed
     EventMachine.stop
@@ -171,61 +172,67 @@ describe Proxy do
     }.should_not raise_error
   end
 
-  context "with a server listening on a TCP port" do
+  context "echo server" do
     before :each do
-      @host = '127.0.0.1'
-      @port = 4242
-      @pid = spawn("ruby spec/support/echo_server.rb #{@host} #{@port}")
-      sleep 1 # let the server come up
+      @echo_server = File.expand_path("../../spec/support/echo_server.rb", __FILE__)
     end
-    after :each do
-      Process.kill('QUIT', @pid)
-    end
-    it "should connect to a unix socket" do
-      connected = false
-      EM.run do
-        EventMachine.add_timer(0.1) do
-          EventMachine::HttpRequest.new('http://127.0.0.1:8080/').get({:timeout => 1})
-        end
-        host = @host
-        port = @port
-        Proxy.start(:host => "0.0.0.0", :port => 8080) do |conn|
-          conn.server :local, :host => host, :port => port
-          conn.on_connect do |name|
-            connected = true
-            EventMachine.stop
-          end
-        end
-      end
-      connected.should == true
-    end
-  end
 
-  context "with a server listening on a unix socket" do
-    before :each do
-      @socket = File.join(Dir.tmpdir, 'em-proxy.sock')
-      @pid = spawn("ruby spec/support/echo_server.rb #{@socket}")
-      sleep 1 # let the server come up
-    end
-    after :each do
-      Process.kill('QUIT', @pid)
-    end
-    it "should connect to a unix socket" do
-      connected = false
-      EM.run do
-        EventMachine.add_timer(0.1) do
-          EventMachine::HttpRequest.new('http://127.0.0.1:8080/').get({:timeout => 1})
-        end
-        socket = @socket
-        Proxy.start(:host => "0.0.0.0", :port => 8080) do |conn|
-          conn.server :local, :socket => socket
-          conn.on_connect do |name|
-            connected = true
-            EventMachine.stop
+    context "with a server listening on a TCP port" do
+      before :each do
+        @host = '127.0.0.1'
+        @port = 4242
+        @pid  = spawn("ruby #{@echo_server} #{@host} #{@port}")
+        sleep 1 # let the server come up
+      end
+      after :each do
+        Process.kill('QUIT', @pid)
+      end
+      it "should connect to a unix socket" do
+        connected = false
+        EM.run do
+          EventMachine.add_timer(0.1) do
+            EventMachine::HttpRequest.new('http://127.0.0.1:8080/').get({:timeout => 1})
+          end
+          host = @host
+          port = @port
+          Proxy.start(:host => "0.0.0.0", :port => 8080) do |conn|
+            conn.server :local, :host => host, :port => port
+            conn.on_connect do |name|
+              connected = true
+              EventMachine.stop
+            end
           end
         end
+        connected.should == true
       end
-      connected.should == true
+    end
+
+    context "with a server listening on a unix socket" do
+      before :each do
+        @socket = File.join(Dir.tmpdir, 'em-proxy.sock')
+        @pid  = spawn("ruby #{@echo_server} #{@socket}")
+        sleep 1 # let the server come up
+      end
+      after :each do
+        Process.kill('QUIT', @pid)
+      end
+      it "should connect to a unix socket" do
+        connected = false
+        EM.run do
+          EventMachine.add_timer(0.1) do
+            EventMachine::HttpRequest.new('http://127.0.0.1:8080/').get({:timeout => 1})
+          end
+          socket = @socket
+          Proxy.start(:host => "0.0.0.0", :port => 8080) do |conn|
+            conn.server :local, :socket => socket
+            conn.on_connect do |name|
+              connected = true
+              EventMachine.stop
+            end
+          end
+        end
+        connected.should == true
+      end
     end
   end
 
