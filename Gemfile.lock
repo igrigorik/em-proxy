@@ -19,6 +19,7 @@ GEM
       eventmachine
     eventmachine (1.0.0)
     http_parser.rb (0.5.3)
+    posix-spawn (0.3.6)
     rake (0.9.2.2)
     rspec (2.7.0)
       rspec-core (~> 2.7.0)
@@ -36,5 +37,6 @@ DEPENDENCIES
   ansi
   em-http-request
   em-proxy!
+  posix-spawn
   rake
   rspec
