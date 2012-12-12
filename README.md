@@ -1,5 +1,7 @@
 # EM-Proxy
 
+[![Build Status](https://travis-ci.org/igrigorik/em-proxy.png?branch=master)](https://travis-ci.org/igrigorik/em-proxy)
+
 EventMachine Proxy DSL for writing high-performance transparent / intercepting proxies in Ruby.
 
 - EngineYard tutorial: [Load testing your environment using em-proxy](http://docs.engineyard.com/em-proxy.html)
