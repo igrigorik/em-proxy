@@ -3,7 +3,7 @@ require "em-mysql"
 require "stringio"
 require "fiber"
 
-Proxy.start(:host => "0.0.0.0", :port => 3307) do |conn|
+EventMachine::Proxy.start(:host => "0.0.0.0", :port => 3307) do |conn|
   conn.server :mysql, :host => "127.0.0.1", :port => 3306, :relay_server => true
 
   QUERY_CMD = 3
@@ -65,8 +65,8 @@ Proxy.start(:host => "0.0.0.0", :port => 3307) do |conn|
           # keys and values at will. :-)
           #
           # P.S. There is probably cleaner syntax for this, but hey...
-            
-            
+
+
           if insert = sql.match(/\((.*?)\).*?\((.*?)\)/)
             data = {}
             table = query[2]

@@ -1,10 +1,10 @@
 require 'helper'
 require File.join(File.dirname(__FILE__), '../', 'examples/balancing')
 
-describe BalancingProxy do
+describe EventMachine::BalancingProxy do
 
   before(:each) do
-    class BalancingProxy::Backend
+    class EventMachine::BalancingProxy::Backend
       @list = nil; @pool = nil
     end
   end
@@ -22,7 +22,7 @@ describe BalancingProxy do
   context "generally" do
 
     it "should raise error for unknown strategy" do
-      lambda { BalancingProxy::Backend.select(:asdf)}.should raise_error(ArgumentError)
+      lambda { EventMachine::BalancingProxy::Backend.select(:asdf)}.should raise_error(ArgumentError)
     end
 
   end
@@ -30,7 +30,7 @@ describe BalancingProxy do
   context "when using the 'random' strategy" do
 
     it "should select random backend" do
-      class BalancingProxy::Backend
+      class EventMachine::BalancingProxy::Backend
         def self.list
           @list ||= [
             {:url => "http://127.0.0.1:3000"},
@@ -41,14 +41,14 @@ describe BalancingProxy do
       end
 
       srand(0)
-      BalancingProxy::Backend.select(:random).host.should == '127.0.0.1'
+      EventMachine::BalancingProxy::Backend.select(:random).host.should == '127.0.0.1'
     end
 
   end
 
   context "when using the 'roundrobin' strategy" do
     it "should select backends in rotating order" do
-      class BalancingProxy::Backend
+      class EventMachine::BalancingProxy::Backend
         def self.list
           @list ||= [
             {:url => "http://127.0.0.1:3000"},
@@ -58,17 +58,17 @@ describe BalancingProxy do
         end
       end
 
-      BalancingProxy::Backend.select(:roundrobin).host.should == '127.0.0.1'
-      BalancingProxy::Backend.select(:roundrobin).host.should == '127.0.0.2'
-      BalancingProxy::Backend.select(:roundrobin).host.should == '127.0.0.3'
-      BalancingProxy::Backend.select(:roundrobin).host.should == '127.0.0.1'
+      EventMachine::BalancingProxy::Backend.select(:roundrobin).host.should == '127.0.0.1'
+      EventMachine::BalancingProxy::Backend.select(:roundrobin).host.should == '127.0.0.2'
+      EventMachine::BalancingProxy::Backend.select(:roundrobin).host.should == '127.0.0.3'
+      EventMachine::BalancingProxy::Backend.select(:roundrobin).host.should == '127.0.0.1'
     end
   end
 
   context "when using the 'balanced' strategy" do
 
     it "should select the first backend when all backends have the same load" do
-      class BalancingProxy::Backend
+      class EventMachine::BalancingProxy::Backend
         def self.list
           @list ||= [
             {:url => "http://127.0.0.3:3000", :load => 0},
@@ -78,11 +78,11 @@ describe BalancingProxy do
         end
       end
 
-      BalancingProxy::Backend.select.host.should == '127.0.0.3'
+      EventMachine::BalancingProxy::Backend.select.host.should == '127.0.0.3'
     end
 
     it "should select the least loaded backend" do
-      class BalancingProxy::Backend
+      class EventMachine::BalancingProxy::Backend
         def self.list
           @list ||= [
             {:url => "http://127.0.0.3:3000", :load => 2},
@@ -92,10 +92,10 @@ describe BalancingProxy do
         end
       end
 
-      BalancingProxy::Backend.select.host.should == '127.0.0.1'
-      BalancingProxy::Backend.select.host.should == '127.0.0.1'
-      BalancingProxy::Backend.select.host.should == '127.0.0.2'
-      BalancingProxy::Backend.select.host.should == '127.0.0.3'
+      EventMachine::BalancingProxy::Backend.select.host.should == '127.0.0.1'
+      EventMachine::BalancingProxy::Backend.select.host.should == '127.0.0.1'
+      EventMachine::BalancingProxy::Backend.select.host.should == '127.0.0.2'
+      EventMachine::BalancingProxy::Backend.select.host.should == '127.0.0.3'
     end
 
   end

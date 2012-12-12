@@ -1,6 +1,6 @@
 require 'lib/em-proxy'
 
-Proxy.start(:host => "0.0.0.0", :port => 8000, :debug => true) do |conn|
+EventMachine::Proxy.start(:host => "0.0.0.0", :port => 8000, :debug => true) do |conn|
   @start = Time.now
   @data = Hash.new("")
 

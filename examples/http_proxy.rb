@@ -10,7 +10,7 @@ host = "0.0.0.0"
 port = 9889
 puts "listening on #{host}:#{port}..."
 
-Proxy.start(:host => host, :port => port) do |conn|
+EventMachine::Proxy.start(:host => host, :port => port) do |conn|
 
   @p = Http::Parser.new
   @p.on_headers_complete = proc do |h|
@@ -19,7 +19,7 @@ Proxy.start(:host => host, :port => port) do |conn|
 
     host, port = h['Host'].split(':')
     conn.server session, :host => host, :port => (port || 80) #, :bind_host => conn.sock[0] - # for bind ip
-                         
+
     conn.relay_to_servers @buffer
 
     @buffer.clear
