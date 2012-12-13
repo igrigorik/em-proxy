@@ -1,10 +1,9 @@
-0.1.8 (Next Release)
+0.1.8 (December 12, 2012)
 --------------------
 
 * [#28](https://github.com/igrigorik/em-proxy/pull/28) - Fix: bin script - close connections only on relay response - [@bo-chen](https://github.com/bo-chen).
 * [#31](https://github.com/igrigorik/em-proxy/pull/31) - Added support for proxying to a unix domain socket - [@dblock](https://github.com/dblock).
 * [#34](https://github.com/igrigorik/em-proxy/pull/34) - Fix: duplex TCP traffic to two backends spec race condition - [@dblock](https://github.com/dblock).
-* Your contribution here!
 
 0.1.7 (October 13, 2012)
 ------------------------
