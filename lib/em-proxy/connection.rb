@@ -102,7 +102,7 @@ module EventMachine
 
         # terminate any unfinished connections
         @servers.values.compact.each do |s|
-          s.close_connection
+          s.close_connection_after_writing
         end
       end
 
