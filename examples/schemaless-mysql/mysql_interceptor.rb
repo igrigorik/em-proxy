@@ -1,5 +1,5 @@
-require "lib/em-proxy"
-require "em-mysql"
+require_relative "../../lib/em-proxy"
+require "em-mysqlplus"
 require "stringio"
 require "fiber"
 
