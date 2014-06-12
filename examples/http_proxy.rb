@@ -11,6 +11,8 @@ port = 9889
 puts "listening on #{host}:#{port}..."
 
 Proxy.start(:host => host, :port => port) do |conn|
+  
+  @buffer = ''
 
   @p = Http::Parser.new
   @p.on_headers_complete = proc do |h|
@@ -24,8 +26,6 @@ Proxy.start(:host => host, :port => port) do |conn|
 
     @buffer.clear
   end
-
-  @buffer = ''
 
   conn.on_connect do |data,b|
     puts [:on_connect, data, b].inspect
