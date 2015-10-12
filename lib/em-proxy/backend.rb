@@ -27,8 +27,8 @@ module EventMachine
 
       # Notify upstream plexer that the backend server is done
       # processing the request
-      def unbind
-        debug [@name, :unbind]
+      def unbind(reason = nil)
+        debug [@name, :unbind, reason]
         @plexer.unbind_backend(@name)
       end
 

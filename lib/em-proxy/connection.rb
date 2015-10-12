@@ -97,8 +97,8 @@ module EventMachine
         @on_connect.call(name) if @on_connect
       end
 
-      def unbind
-        debug [:unbind, :connection]
+      def unbind(reason = nil)
+        debug [:unbind, :connection, reason]
 
         # terminate any unfinished connections
         @servers.values.compact.each do |s|
