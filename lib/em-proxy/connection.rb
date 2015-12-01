@@ -12,7 +12,15 @@ module EventMachine
       ##### EventMachine
       def initialize(options)
         @debug = options[:debug] || false
+        @tls_key  = options[:tls_key] || false
+        @tls_cert = options[:tls_cert] || false
         @servers = {}
+      end
+
+      def post_init
+        if @tls_key and @tls_cert
+          start_tls :private_key_file => @tls_key, :cert_chain_file => @tls_cert, :verify_peer => false
+        end
       end
 
       def receive_data(data)
