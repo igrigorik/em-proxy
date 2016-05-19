@@ -10,6 +10,14 @@ host = "0.0.0.0"
 port = 9889
 puts "listening on #{host}:#{port}..."
 
+##----
+## Note: 
+##    Use of `puts` statements below can cause the loading of corrupt
+##    images if using the proxy to view a page like maps.google.com. 
+##    You will most likely want to remove these statements if you are
+##    using this file as a starting point not only for the reason
+##    stated above but, also for performance reasons. 
+##----
 Proxy.start(:host => host, :port => port) do |conn|
   
   @buffer = ''
@@ -24,7 +32,7 @@ Proxy.start(:host => host, :port => port) do |conn|
                          
     conn.relay_to_servers @buffer
 
-    @buffer.clear
+    @buffer = ''
   end
 
   conn.on_connect do |data,b|
