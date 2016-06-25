@@ -62,24 +62,24 @@ describe Proxy do
     end
   end
 
-  it "should duplex TCP traffic to two backends google & yahoo" do
+  it "should duplex TCP traffic to two backends" do
     EM.run do
       EventMachine.add_timer(0.1) do
         EventMachine::HttpRequest.new('http://127.0.0.1:8080/test').get({:timeout => 1})
       end
 
       Proxy.start(:host => "0.0.0.0", :port => 8080) do |conn|
-        conn.server :goog, :host => "google.com", :port => 80
-        conn.server :yhoo, :host => "yahoo.com", :port => 80
+        conn.server :goog1, :host => "google.com", :port => 80
+        conn.server :goog2, :host => "google.com", :port => 80
         conn.on_data { |data| data }
 
         seen = []
         conn.on_response do |backend, resp|
           case backend
-          when :goog then
+          when :goog1 then
             resp.should =~ /404/
             seen.push backend
-          when :yhoo
+          when :goog2
             resp.should =~ /404/
             seen.push backend
           end
