@@ -11,7 +11,7 @@ port = 9889
 puts "listening on #{host}:#{port}..."
 
 Proxy.start(:host => host, :port => port) do |conn|
-  
+
   @buffer = ''
 
   @p = Http::Parser.new
@@ -21,10 +21,9 @@ Proxy.start(:host => host, :port => port) do |conn|
 
     host, port = h['Host'].split(':')
     conn.server session, :host => host, :port => (port || 80) #, :bind_host => conn.sock[0] - # for bind ip
-                         
-    conn.relay_to_servers @buffer
 
-    @buffer.clear
+    conn.relay_to_servers @buffer
+    @buffer = nil
   end
 
   conn.on_connect do |data,b|
@@ -32,6 +31,13 @@ Proxy.start(:host => host, :port => port) do |conn|
   end
 
   conn.on_data do |data|
+    if @buffer
+      @buffer << data
+
+      nil
+    else
+      @
+
     @buffer << data
     @p << data
 
