@@ -55,6 +55,7 @@ module BalancingProxy
       @strategy = strategy.to_sym
       case @strategy
         when :balanced
+          pp [list, list.sort_by { |b| b.load }.first]
           backend = list.sort_by { |b| b.load }.first
         when :roundrobin
           @pool   = list.clone if @pool.nil? || @pool.empty?

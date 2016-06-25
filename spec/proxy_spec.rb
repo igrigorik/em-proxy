@@ -112,7 +112,7 @@ describe Proxy do
         conn.server :goog, :host => "google.com", :port => 80
         conn.on_data { |data| data }
         conn.on_response do |backend, data|
-          data.gsub(/^HTTP\/1.1 200/, 'HTTP/1.1 404')
+          data.gsub(/^HTTP\/1.1 301/, 'HTTP/1.1 404')
         end
       end
     end

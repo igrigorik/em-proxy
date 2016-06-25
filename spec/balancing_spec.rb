@@ -85,8 +85,8 @@ describe BalancingProxy do
       class BalancingProxy::Backend
         def self.list
           @list ||= [
-            {:url => "http://127.0.0.3:3000", :load => 2},
-            {:url => "http://127.0.0.2:3000", :load => 1},
+            {:url => "http://127.0.0.3:3000", :load => 4},
+            {:url => "http://127.0.0.2:3000", :load => 2},
             {:url => "http://127.0.0.1:3000", :load => 0}
           ].map { |backend| new backend }
         end
@@ -94,8 +94,8 @@ describe BalancingProxy do
 
       BalancingProxy::Backend.select.host.should == '127.0.0.1'
       BalancingProxy::Backend.select.host.should == '127.0.0.1'
-      BalancingProxy::Backend.select.host.should == '127.0.0.2'
-      BalancingProxy::Backend.select.host.should == '127.0.0.3'
+      BalancingProxy::Backend.select.host.should_not == '127.0.0.3'
+      BalancingProxy::Backend.select.host.should_not == '127.0.0.3'
     end
 
   end
