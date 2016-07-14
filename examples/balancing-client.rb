@@ -1,5 +1,7 @@
 # A simple HTTP client, which sends multiple requests to the proxy server
 
+#!/usr/bin/env ruby
+
 require 'net/http'
 
 proxy = Net::HTTP::Proxy('0.0.0.0', '9999')
