@@ -1,13 +1,14 @@
 PATH
   remote: .
   specs:
-    em-proxy (0.1.8)
+    em-proxy (0.1.9)
       eventmachine
 
 GEM
   remote: http://rubygems.org/
   specs:
-    addressable (2.4.0)
+    addressable (2.8.0)
+      public_suffix (>= 2.0.2, < 5.0)
     ansi (1.5.0)
     cookiejar (0.3.3)
     diff-lcs (1.2.5)
@@ -22,6 +23,7 @@ GEM
     eventmachine (1.2.0.1)
     http_parser.rb (0.6.0)
     posix-spawn (0.3.11)
+    public_suffix (4.0.6)
     rake (11.2.2)
     rspec (3.4.0)
       rspec-core (~> 3.4.0)
